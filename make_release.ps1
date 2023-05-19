@@ -14,10 +14,10 @@ If ( $Architecture -eq "x86" ) {
 If ( -not $PythonPath ) {
 	If ( $Architecture -eq "win32" ) {
 		# Note that the backtick here is used as escape character.
-		$PythonPath = "C:\Python37` (x86)"
+		$PythonPath = "C:\Python311` (x86)"
 	}
 	Else {
-		$PythonPath = "C:\Python37"
+		$PythonPath = "C:\Python311"
 	}
 }
 
@@ -250,6 +250,17 @@ Copy-Item -Force "plaso\parsers\esedb_plugins\*.yaml" "${DistPath}\plaso\parsers
 Copy-Item -Force "plaso\parsers\olecf_plugins\*.yaml" "${DistPath}\plaso\parsers\olecf_plugins"
 Copy-Item -Force "plaso\parsers\plist_plugins\*.yaml" "${DistPath}\plaso\parsers\plist_plugins"
 Copy-Item -Force "plaso\parsers\winreg_plugins\*.yaml" "${DistPath}\plaso\parsers\winreg_plugins"
+
+# Other things to copy over
+# Possibly .yaml formatters ?
+Copy-Item -Force "data\formatters\*.yaml" "${DistPath}\data\formatters"
+# plaso\preprocessors\mounted_devices.yaml
+# plaso\preprocessors\time_zone_information.yaml
+New-Item -ItemType "directory" -Path "${DistPath}\plaso\preprocessors"
+Copy-Item -Force "plaso\preprocessors\*.yaml" "${DistPath}\plaso\preprocessors"
+# pycreg.cp311-win_amd64.pyd (why's every other pyd make it but this one?)
+Copy-Item -Force "${PythonPath}\Lib\site-packages\pycreg.cp311-win_amd64.pyd" "${DistPath}"
+
 
 # Makes plaso-<version><python_version>-<architecture>.zip
 Add-Type -assembly "system.io.compression.filesystem"
