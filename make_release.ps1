@@ -8,182 +8,153 @@ Param (
 	[string]$PythonPath = ""
 )
 
-If ( $Architecture -eq "x86" )
-{
+If ( $Architecture -eq "x86" ) {
 	$Architecture = "win32"
 }
-If ( -not $PythonPath )
-{
-	If ( $Architecture -eq "win32" )
-	{
+If ( -not $PythonPath ) {
+	If ( $Architecture -eq "win32" ) {
 		# Note that the backtick here is used as escape character.
-		$PythonPath = "C:\Python37` (x86)"
+		$PythonPath = "C:\Python311` (x86)"
 	}
-	Else
-	{
-		$PythonPath = "C:\Python37"
+	Else {
+		$PythonPath = "C:\Python311"
 	}
 }
 
-Try
-{
+Try {
 	# -ErrorAction Stop causes Get-Command to raise a non-terminating
 	# exception. A non-terminating exception will not be caught by
 	# try-catch.
 	$PyInstaller = (Get-Command "pyinstaller.exe" -ErrorAction Stop).Path
 	$Python = ""
 }
-Catch
-{
+Catch {
 	$PyInstaller = "pyinstaller.exe"
 }
 
-If (-Not (Test-Path $PyInstaller))
-{
+If (-Not (Test-Path $PyInstaller)) {
 	$PyInstaller = "..\pyinstaller\pyinstaller.py"
 
-	If (-Not (Test-Path $PyInstaller))
-	{
-	    Write-Host "Missing PyInstaller." -foreground Red
+	If (-Not (Test-Path $PyInstaller)) {
+		Write-Host "Missing PyInstaller." -foreground Red
 
-	    Exit 1
+		Exit 1
 	}
 	$Python = "${PythonPath}\python.exe"
 
-	If (-Not (Test-Path $Python))
-	{
-	    Write-Host "Missing Python: ${Python}." -foreground Red
+	If (-Not (Test-Path $Python)) {
+		Write-Host "Missing Python: ${Python}." -foreground Red
 
-	    Exit 1
+		Exit 1
 	}
 }
 
 $Version = & Invoke-Expression -Command "git describe --tags --abbrev=0 2>&1"
 
 # Build the binaries for each tool
-If (Test-Path "dist")
-{
-    Remove-Item -Force -Recurse "dist"
+If (Test-Path "dist") {
+	Remove-Item -Force -Recurse "dist"
 }
-If ( $Python -ne "" )
-{
+If ( $Python -ne "" ) {
 	# Note that the double quotes in the Python command are escaped by using double quotes
 	$PythonVersion = & Invoke-Expression -Command "& '${Python}' -c ""from __future__ import print_function; import sys; print('{0:d}.{1:d}'.format(sys.version_info[0], sys.version_info[1]))"" "
 }
-Else
-{
+Else {
 	$PythonVersion = ""
 }
-If ( $PythonVersion -ne "" )
-{
+If ( $PythonVersion -ne "" ) {
 	$PythonVersion = "-py${PythonVersion}"
 }
 $Arguments = "--hidden-import artifacts --onedir tools\image_export.py"
 
-If ( $Python -ne "" )
-{
+If ( $Python -ne "" ) {
 	$Output = Invoke-Expression -Command "& '${Python}' ${PyInstaller} ${Arguments} 2>&1"
 }
-Else
-{
+Else {
 	$Output = Invoke-Expression -Command "${PyInstaller} ${Arguments} 2>&1"
 }
 If ( $LastExitCode -ne 0 ) {
-    Write-Host "Error running PyInstaller for tools\image_export.py." -foreground Red
-    Write-Host ${Output} -foreground Red
-    Exit 1
+	Write-Host "Error running PyInstaller for tools\image_export.py." -foreground Red
+	Write-Host ${Output} -foreground Red
+	Exit 1
 }
-Else
-{
+Else {
 	Write-Host ${Output}
 }
 
 $Arguments = "--hidden-import artifacts --hidden-import future --hidden-import pysigscan --hidden-import requests --hidden-import yara --onedir tools\log2timeline.py"
 
-If ( $Python -ne "" )
-{
+If ( $Python -ne "" ) {
 	$Output = Invoke-Expression -Command "& '${Python}' ${PyInstaller} ${Arguments} 2>&1"
 }
-Else
-{
+Else {
 	$Output = Invoke-Expression -Command "${PyInstaller} ${Arguments} 2>&1"
 }
 If ( $LastExitCode -ne 0 ) {
-    Write-Host "Error running PyInstaller for tools\log2timeline.py." -foreground Red
-    Write-Host ${Output} -foreground Red
-    Exit 1
+	Write-Host "Error running PyInstaller for tools\log2timeline.py." -foreground Red
+	Write-Host ${Output} -foreground Red
+	Exit 1
 }
-Else
-{
+Else {
 	Write-Host ${Output}
 }
 
 $Arguments = "--hidden-import artifacts --onedir tools\pinfo.py"
 
-If ( $Python -ne "" )
-{
+If ( $Python -ne "" ) {
 	$Output = Invoke-Expression -Command "& '${Python}' ${PyInstaller} ${Arguments} 2>&1"
 }
-Else
-{
+Else {
 	$Output = Invoke-Expression -Command "${PyInstaller} ${Arguments} 2>&1"
 }
 If ( $LastExitCode -ne 0 ) {
-    Write-Host "Error running PyInstaller for tools\pinfo.py." -foreground Red
-    Write-Host ${Output} -foreground Red
-    Exit 1
+	Write-Host "Error running PyInstaller for tools\pinfo.py." -foreground Red
+	Write-Host ${Output} -foreground Red
+	Exit 1
 }
-Else
-{
+Else {
 	Write-Host ${Output}
 }
 
 $Arguments = "--hidden-import artifacts --hidden-import requests --onedir tools\psort.py"
 
-If ( $Python -ne "" )
-{
+If ( $Python -ne "" ) {
 	$Output = Invoke-Expression -Command "& '${Python}' ${PyInstaller} ${Arguments} 2>&1"
 }
-Else
-{
+Else {
 	$Output = Invoke-Expression -Command "${PyInstaller} ${Arguments} 2>&1"
 }
 If ( $LastExitCode -ne 0 ) {
-    Write-Host "Error running PyInstaller for tools\psort.py." -foreground Red
-    Write-Host ${Output} -foreground Red
-    Exit 1
+	Write-Host "Error running PyInstaller for tools\psort.py." -foreground Red
+	Write-Host ${Output} -foreground Red
+	Exit 1
 }
-Else
-{
+Else {
 	Write-Host ${Output}
 }
 
 $Arguments = "--hidden-import artifacts --hidden-import future --hidden-import pysigscan --hidden-import requests --hidden-import yara --onedir tools\psteal.py"
 
-If ( $Python -ne "" )
-{
+If ( $Python -ne "" ) {
 	$Output = Invoke-Expression -Command "& '${Python}' ${PyInstaller} ${Arguments} 2>&1"
 }
-Else
-{
+Else {
 	$Output = Invoke-Expression -Command "${PyInstaller} ${Arguments} 2>&1"
 }
 If ( $LastExitCode -ne 0 ) {
-    Write-Host "Error running PyInstaller for tools\psteal.py." -foreground Red
-    Write-Host ${Output} -foreground Red
-    Exit 1
+	Write-Host "Error running PyInstaller for tools\psteal.py." -foreground Red
+	Write-Host ${Output} -foreground Red
+	Exit 1
 }
-Else
-{
+Else {
 	Write-Host ${Output}
 }
 
 # Set up distribution package path
 $DistPath = "dist\plaso"
 
-If (Test-Path "${DistPath}")
-{
-    Remove-Item -Force -Recurse "${DistPath}"
+If (Test-Path "${DistPath}") {
+	Remove-Item -Force -Recurse "${DistPath}"
 }
 New-Item -ItemType "directory" -Path "${DistPath}"
 New-Item -ItemType "directory" -Path "${DistPath}\data"
@@ -205,9 +176,9 @@ Copy-Item -Force "data\*" "${DistPath}\data"
 # Copy the license files of the dependencies
 $Output = Invoke-Expression -Command "git.exe clone https://github.com/log2timeline/l2tdevtools dist\l2tdevtools 2>&1"
 
-$dep = Get-Content dist\l2tdevtools\data\presets.ini | Select-String -pattern '\[plaso\]' -context 0,1
+$dep = Get-Content dist\l2tdevtools\data\presets.ini | Select-String -pattern '\[plaso\]' -context 0, 1
 Foreach ($d in $dep.context.DisplayPostContext.split(': ')[2].split(',')) {
-    Copy-Item -Force "dist\l2tdevtools\data\licenses\LICENSE.$($d)" ${DistPath}\licenses
+	Copy-Item -Force "dist\l2tdevtools\data\licenses\LICENSE.$($d)" ${DistPath}\licenses
 }
 
 # Remove debug, test and yet unused dependencies.
@@ -221,14 +192,12 @@ $Output = Invoke-Expression -Command "git.exe clone https://github.com/ForensicA
 
 Push-Location "dist\artifacts"
 
-Try
-{
+Try {
 	$LatestTag = Invoke-Expression -Command "git.exe describe --tags $(git.exe rev-list --tags --max-count=1) 2>&1"
 
 	$Output = Invoke-Expression -Command "git.exe checkout ${LatestTag} 2>&1"
 }
-Finally
-{
+Finally {
 	Pop-Location
 }
 New-Item -ItemType "directory" -Path "${DistPath}\artifacts"
@@ -240,14 +209,12 @@ $Output = Invoke-Expression -Command "git.exe clone https://github.com/log2timel
 
 Push-Location "dist\dfvfs"
 
-Try
-{
+Try {
 	$LatestTag = Invoke-Expression -Command "git.exe describe --tags $(git.exe rev-list --tags --max-count=1) 2>&1"
 
 	$Output = Invoke-Expression -Command "git.exe checkout ${LatestTag} 2>&1"
 }
-Finally
-{
+Finally {
 	Pop-Location
 }
 New-Item -ItemType "directory" -Path "${DistPath}\dfvfs\lib"
@@ -259,14 +226,12 @@ $Output = Invoke-Expression -Command "git.exe clone https://github.com/log2timel
 
 Push-Location "dist\dfwinreg"
 
-Try
-{
+Try {
 	$LatestTag = Invoke-Expression -Command "git.exe describe --tags $(git.exe rev-list --tags --max-count=1) 2>&1"
 
 	$Output = Invoke-Expression -Command "git.exe checkout ${LatestTag} 2>&1"
 }
-Finally
-{
+Finally {
 	Pop-Location
 }
 New-Item -ItemType "directory" -Path "${DistPath}\dfwinreg"
@@ -285,6 +250,17 @@ Copy-Item -Force "plaso\parsers\esedb_plugins\*.yaml" "${DistPath}\plaso\parsers
 Copy-Item -Force "plaso\parsers\olecf_plugins\*.yaml" "${DistPath}\plaso\parsers\olecf_plugins"
 Copy-Item -Force "plaso\parsers\plist_plugins\*.yaml" "${DistPath}\plaso\parsers\plist_plugins"
 Copy-Item -Force "plaso\parsers\winreg_plugins\*.yaml" "${DistPath}\plaso\parsers\winreg_plugins"
+
+# Other things to copy over
+# Possibly .yaml formatters ?
+Copy-Item -Force "data\formatters\*.yaml" "${DistPath}\data\formatters"
+# plaso\preprocessors\mounted_devices.yaml
+# plaso\preprocessors\time_zone_information.yaml
+New-Item -ItemType "directory" -Path "${DistPath}\plaso\preprocessors"
+Copy-Item -Force "plaso\preprocessors\*.yaml" "${DistPath}\plaso\preprocessors"
+# pycreg.cp311-win_amd64.pyd (why's every other pyd make it but this one?)
+Copy-Item -Force "${PythonPath}\Lib\site-packages\pycreg.cp311-win_amd64.pyd" "${DistPath}"
+
 
 # Makes plaso-<version><python_version>-<architecture>.zip
 Add-Type -assembly "system.io.compression.filesystem"
